@@ -9,7 +9,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'El Jardín de los Conejos - POS',
   description: 'Sistema de punto de venta para El Jardín de los Conejos Tacos',
-  generator: 'v0.app',
+  generator: 'El jardin de los conejos',
   icons: {
     icon: [
       {

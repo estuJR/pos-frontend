@@ -4,12 +4,11 @@ import { useState } from "react"
 import type { User, UserRole } from "@/app/page"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { UserCircle, Shield, Users } from "lucide-react"
 
 interface LoginScreenProps {
   users: User[]
-  onLogin: (user: User) => void
+  onLogin: (role: UserRole, pin: string) => Promise<boolean>
 }
 
 export function LoginScreen({ users, onLogin }: LoginScreenProps) {
@@ -17,6 +16,7 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const [pin, setPin] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role)
@@ -25,22 +25,40 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
     setError("")
   }
 
-  const handlePinSubmit = () => {
-    const user = users.find((u) => u.role === selectedRole && u.pin === pin)
-    if (user) {
-      onLogin(user)
-    } else {
+  const handlePinSubmit = async () => {
+    if (!selectedRole || pin.length !== 4) return
+    setLoading(true)
+    setError("")
+    const success = await onLogin(selectedRole, pin)
+    if (!success) {
       setError("PIN incorrecto. Intenta de nuevo.")
       setPin("")
     }
+    setLoading(false)
   }
 
   const handleKeyPress = (key: string) => {
     if (key === "del") {
-      setPin((prev) => prev.slice(0, -1))
+      setPin(prev => prev.slice(0, -1))
     } else if (pin.length < 4) {
-      setPin((prev) => prev + key)
+      const newPin = pin + key
+      setPin(newPin)
+      if (newPin.length === 4) {
+        // Auto submit cuando completa 4 dígitos
+        setTimeout(() => handlePinSubmitWithPin(selectedRole!, newPin), 100)
+      }
     }
+  }
+
+  const handlePinSubmitWithPin = async (role: UserRole, pinValue: string) => {
+    setLoading(true)
+    setError("")
+    const success = await onLogin(role, pinValue)
+    if (!success) {
+      setError("PIN incorrecto. Intenta de nuevo.")
+      setPin("")
+    }
+    setLoading(false)
   }
 
   const handleBack = () => {
@@ -49,6 +67,9 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
     setPin("")
     setError("")
   }
+
+  const supervisors = users.filter(u => u.role === "supervisor")
+  const employees = users.filter(u => u.role === "empleado")
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -65,7 +86,9 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
         <Card className="border-2 border-primary shadow-xl">
           <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="text-center text-xl">
-              {mode === "select" ? "Bienvenido" : `Ingreso ${selectedRole === "supervisor" ? "Supervisor" : "Empleado"}`}
+              {mode === "select"
+                ? "Bienvenido"
+                : `Ingreso ${selectedRole === "supervisor" ? "Supervisor" : "Empleado"}`}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -79,14 +102,14 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                   className="w-full h-16 text-lg bg-accent hover:bg-accent/90 text-accent-foreground"
                 >
                   <Shield className="mr-3 h-6 w-6" />
-                  Supervisor
+                  Supervisor 
                 </Button>
                 <Button
                   onClick={() => handleRoleSelect("empleado")}
                   className="w-full h-16 text-lg bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Users className="mr-3 h-6 w-6" />
-                  Empleado
+                  Empleado 
                 </Button>
               </div>
             ) : (
@@ -118,7 +141,7 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                       <Button
                         key={key}
                         onClick={() => key && handleKeyPress(key)}
-                        disabled={!key}
+                        disabled={!key || loading}
                         variant={key === "del" ? "outline" : "secondary"}
                         className={`h-14 text-xl font-semibold ${
                           !key ? "invisible" : ""
@@ -135,23 +158,23 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                     onClick={handleBack}
                     variant="outline"
                     className="flex-1 border-primary text-primary hover:bg-primary/10"
+                    disabled={loading}
                   >
                     Volver
                   </Button>
                   <Button
                     onClick={handlePinSubmit}
-                    disabled={pin.length !== 4}
+                    disabled={pin.length !== 4 || loading}
                     className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
-                    Ingresar
+                    {loading ? "Verificando..." : "Ingresar"}
                   </Button>
                 </div>
 
-                {/* Demo hint */}
                 <p className="text-xs text-center text-muted-foreground">
                   {selectedRole === "supervisor"
-                    ? "Demo: PIN 1234"
-                    : "Demo: PIN 1111, 2222, o 3333"}
+                    ? "Supervisor: PIN 1234"
+                    : "Empleados: PIN 1111 | 2222 | 3333"}
                 </p>
               </div>
             )}
