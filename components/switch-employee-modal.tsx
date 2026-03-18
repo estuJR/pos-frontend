@@ -23,7 +23,6 @@ export function SwitchEmployeeModal({
   const [pin, setPin] = useState("")
   const [error, setError] = useState("")
 
-  // Filter out current user
   const otherEmployees = employees.filter((e) => e.name !== currentUser.name)
 
   const handleKeyPress = (key: string) => {
@@ -91,7 +90,6 @@ export function SwitchEmployeeModal({
                 <UserCircle className="h-16 w-16 text-primary" />
               </div>
 
-              {/* PIN Display */}
               <div className="flex justify-center gap-3">
                 {[0, 1, 2, 3].map((i) => (
                   <div
@@ -107,7 +105,6 @@ export function SwitchEmployeeModal({
                 <p className="text-accent text-center text-sm">{error}</p>
               )}
 
-              {/* PIN Pad */}
               <div className="grid grid-cols-3 gap-2">
                 {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map(
                   (key) => (
@@ -142,11 +139,6 @@ export function SwitchEmployeeModal({
                   Confirmar
                 </Button>
               </div>
-
-              {/* Demo hint */}
-              <p className="text-xs text-center text-muted-foreground">
-                PIN de {selectedEmployee.name}: {selectedEmployee.pin}
-              </p>
             </div>
           )}
         </CardContent>

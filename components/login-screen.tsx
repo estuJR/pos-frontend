@@ -44,7 +44,6 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
       const newPin = pin + key
       setPin(newPin)
       if (newPin.length === 4) {
-        // Auto submit cuando completa 4 dígitos
         setTimeout(() => handlePinSubmitWithPin(selectedRole!, newPin), 100)
       }
     }
@@ -68,13 +67,9 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
     setError("")
   }
 
-  const supervisors = users.filter(u => u.role === "supervisor")
-  const employees = users.filter(u => u.role === "empleado")
-
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <img
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202026-03-16%20a%20la%28s%29%204.57.42%E2%80%AFp.%C2%A0m.-GNN97ECZah8oBuwyg4QJsUGeewX9cX.png"
@@ -102,14 +97,14 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                   className="w-full h-16 text-lg bg-accent hover:bg-accent/90 text-accent-foreground"
                 >
                   <Shield className="mr-3 h-6 w-6" />
-                  Supervisor 
+                  Supervisor
                 </Button>
                 <Button
                   onClick={() => handleRoleSelect("empleado")}
                   className="w-full h-16 text-lg bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Users className="mr-3 h-6 w-6" />
-                  Empleado 
+                  Empleado
                 </Button>
               </div>
             ) : (
@@ -118,7 +113,6 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                   <UserCircle className="h-16 w-16 text-primary" />
                 </div>
 
-                {/* PIN Display */}
                 <div className="flex justify-center gap-3">
                   {[0, 1, 2, 3].map((i) => (
                     <div
@@ -134,7 +128,6 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                   <p className="text-accent text-center text-sm">{error}</p>
                 )}
 
-                {/* PIN Pad */}
                 <div className="grid grid-cols-3 gap-2">
                   {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map(
                     (key) => (
@@ -170,12 +163,6 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
                     {loading ? "Verificando..." : "Ingresar"}
                   </Button>
                 </div>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  {selectedRole === "supervisor"
-                    ? "Supervisor: PIN 1234"
-                    : "Empleados: PIN 1111 | 2222 | 3333"}
-                </p>
               </div>
             )}
           </CardContent>
